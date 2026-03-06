@@ -1,0 +1,39 @@
+
+cc_library_headers {
+    name: "libcameracontrolptp_headers",
+    owner: "google",
+    vendor: true,
+    export_include_dirs: ["include"],
+}
+cc_library_shared {
+    name: "libcameracontrolptp",
+    owner: "google",
+    vendor: true,
+    srcs: [
+        "ports/ports_usb_impl.cpp",
+        "ports/ports_ptp_impl.cpp",
+        "sources/socc_ptp.cpp",
+        "sources/parser.cpp",
+    ],
+    local_include_dirs: [
+        "include",
+        "ports",
+        "lib/inc",
+    ],
+    required: ["libusb"],
+    shared_libs: [
+        "libusb",
+        "liblog",
+        "libc",
+    ],
+    cflags: [
+        "-g",
+        "-Wall",
+        "-fPIC",
+		"-Wno-unused-variable",
+		"-Wno-unused-parameter",
+		"-Wno-unused-private-field"
+    ],
+    stl: "c++_shared",
+    compile_multilib: "both",
+}

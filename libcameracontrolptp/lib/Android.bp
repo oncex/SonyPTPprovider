@@ -1,0 +1,21 @@
+cc_prebuilt_library_shared {
+    name: "libusb-1.0",
+    arch: {
+        arm: {
+            srcs: ["armeabi-v7a/libusb-1.0.so"],
+        },
+        arm64: {
+            srcs: ["arm64-v8a/libusb-1.0.so"],
+        },
+    },
+    compile_multilib: "both",
+    export_include_dirs: ["inc"],
+    strip: { none: true },
+    vendor: true,
+    check_elf_files: false,
+}
+cc_library_headers {
+    name: "libusb-1.0_headers",
+    vendor: true,
+    export_include_dirs: ["inc"],
+}

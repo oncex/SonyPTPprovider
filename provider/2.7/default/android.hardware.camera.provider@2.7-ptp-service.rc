@@ -1,0 +1,11 @@
+service vendor.camera-provider-2-7-ptp /vendor/bin/hw/android.hardware.camera.provider@2.7-service-ptp
+    interface android.hardware.camera.provider@2.4::ICameraProvider ptp/0
+    interface android.hardware.camera.provider@2.5::ICameraProvider ptp/0
+    interface android.hardware.camera.provider@2.6::ICameraProvider ptp/0
+    interface android.hardware.camera.provider@2.7::ICameraProvider ptp/0
+    class hal
+    user cameraserver
+    group audio camera input drmrpc usb
+    ioprio rt 4
+    capabilities SYS_NICE
+    task_profiles CameraServiceCapacity MaxPerformance
