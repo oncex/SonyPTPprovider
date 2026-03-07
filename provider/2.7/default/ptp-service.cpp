@@ -13,6 +13,8 @@ using android::hardware::camera::provider::V2_7::ICameraProvider;
 using android::hidl::base::V1_0::IBase;
 
 int main() {
+    using namespace android::hardware::camera::provider::V2_7::implementation;
+
     ALOGI("PTP Camera Provider service is starting.");
 
     // The camera HAL may communicate to other vendor components via

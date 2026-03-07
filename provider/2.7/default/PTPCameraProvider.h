@@ -44,7 +44,7 @@ using ::android::hardware::Void;
 using ::android::hardware::camera::common::V1_0::CameraDeviceStatus;
 using ::android::hardware::camera::common::V1_0::Status;
 using ::android::hardware::camera::common::V1_0::VendorTagSection;
-using ::android::hardware::camera::external::common::PTPCameraConfig;
+using ::android::hardware::camera::ptp::common::PTPCameraConfig;
 using ::android::hardware::camera::provider::V2_4::ICameraProviderCallback;
 using ::android::hardware::camera::provider::V2_5::DeviceState;
 using ::android::hardware::camera::provider::V2_7::CameraIdAndStreamCombination;
@@ -95,7 +95,7 @@ struct PTPCameraProvider : public virtual RefBase {
     void deviceRemoved(int bus, int dev);
 
   private:
-    void addExternalCamera(std::string deviceName);
+    void addPTPCamera(std::string deviceName);
 
     class HotplugThread : public android::Thread {
       public:

@@ -33,11 +33,12 @@ namespace V2_7 {
 namespace implementation {
 
 namespace {
-// "device@<version>/external/<id>"
-const std::regex kDeviceNameRE("device@([0-9]+\\.[0-9]+)/external/(.+)");
+// "device@<version>/ptp/<id>"
+const std::regex kDeviceNameRE("device@([0-9]+\\.[0-9]+)/ptp/(.+)");
 
 bool matchDeviceName(int cameraIdOffset, const hidl_string& deviceName, std::string* deviceVersion,
                      std::string* cameraDevicePath) {
+    (void) cameraIdOffset;
     std::string deviceNameStd(deviceName.c_str());
     std::smatch sm;
     if (std::regex_match(deviceNameStd, sm, kDeviceNameRE)) {
@@ -47,17 +48,17 @@ bool matchDeviceName(int cameraIdOffset, const hidl_string& deviceName, std::str
         if (cameraDevicePath != nullptr) {
             // Reconstruct the device path "usb:bus:dev" from the ID (which might be just an index or encoded)
             // For PTP, we might store "usb:bus:dev" directly as the ID suffix if it's safe.
-            // But Android Camera ID should be numeric usually for legacy apps, though external can be anything.
+            // But Android Camera ID should be numeric usually for legacy apps, though ptp can be anything.
             // Let's assume the ID passed here is the one we registered.
-            // Wait, we register "device@3.4/external/<id>".
+            // Wait, we register "device@3.4/ptp/<id>".
             // The <id> part is what we need to map back to "usb:bus:dev".
             // Since we don't persist the mapping, we might need to rely on the fact that we use "usb:bus:dev" as the underlying ID,
             // but mapped to a numeric ID for the HAL if needed.
             // However, ExternalCameraProvider uses "videoX" index.
             // Let's stick to a simple mapping or just use the suffix if possible.
-            // But wait, the ID must be numeric for some frameworks? No, external cameras have arbitrary IDs in HAL v3.
+            // But wait, the ID must be numeric for some frameworks? No, ptp cameras have arbitrary IDs in HAL v3.
             // But `mCfg.cameraIdOffset` suggests we produce numeric IDs.
-            // Let's look at `addExternalCamera`.
+            // Let's look at `addPTPCamera`.
             // It parses `devName` (e.g. "/dev/video0") to get the number.
             // For PTP "usb:001:002", we can't easily get a number.
             // We might need to maintain a map or just hash it.
@@ -105,7 +106,7 @@ PTPCameraProvider::PTPCameraProvider()
     mHotPlugThread->run("PTPCamHotPlug", PRIORITY_BACKGROUND);
 
     mPreferredHal3MinorVersion =
-            property_get_int32("ro.vendor.camera.external.hal3TrebleMinorVersion", 4);
+            property_get_int32("ro.vendor.camera.ptp.hal3TrebleMinorVersion", 4);
     ALOGV("Preferred HAL 3 minor version is %d", mPreferredHal3MinorVersion);
 }
 
@@ -153,7 +154,7 @@ Return<void> PTPCameraProvider::getCameraIdList(
 
 Return<void> PTPCameraProvider::isSetTorchModeSupported(
         ICameraProvider::isSetTorchModeSupported_cb _hidl_cb) {
-    // setTorchMode API is supported, though right now no external camera device
+    // setTorchMode API is supported, though right now no ptp camera device
     // has a flash unit.
     _hidl_cb(Status::OK, true);
     return Void();
@@ -200,7 +201,7 @@ Return<void> PTPCameraProvider::getCameraDeviceInterface_V3_x(
     return Void();
 }
 
-void PTPCameraProvider::addExternalCamera(std::string deviceId) {
+void PTPCameraProvider::addPTPCamera(std::string deviceId) {
     ALOGV("PTPCam: adding %s to PTP Camera HAL!", deviceId.c_str());
     Mutex::Autolock _l(mLock);
     std::string deviceName;
@@ -212,11 +213,11 @@ void PTPCameraProvider::addExternalCamera(std::string deviceId) {
     // For simplicity, we'll use the string directly.
     
     if (mPreferredHal3MinorVersion == 6) {
-        deviceName = std::string("device@3.6/external/") + deviceId;
+        deviceName = std::string("device@3.6/ptp/") + deviceId;
     } else if (mPreferredHal3MinorVersion == 5) {
-        deviceName = std::string("device@3.5/external/") + deviceId;
+        deviceName = std::string("device@3.5/ptp/") + deviceId;
     } else {
-        deviceName = std::string("device@3.4/external/") + deviceId;
+        deviceName = std::string("device@3.4/ptp/") + deviceId;
     }
     mCameraStatusMap[deviceName] = CameraDeviceStatus::PRESENT;
     if (mCallbacks != nullptr) {
@@ -242,7 +243,7 @@ void PTPCameraProvider::deviceAdded(int bus, int dev) {
     }
     deviceImpl.clear();
 
-    addExternalCamera(deviceId);
+    addPTPCamera(deviceId);
 }
 
 void PTPCameraProvider::deviceRemoved(int bus, int dev) {
@@ -252,11 +253,11 @@ void PTPCameraProvider::deviceRemoved(int bus, int dev) {
     
     std::string deviceName;
     if (mPreferredHal3MinorVersion == 6) {
-        deviceName = std::string("device@3.6/external/") + deviceId;
+        deviceName = std::string("device@3.6/ptp/") + deviceId;
     } else if (mPreferredHal3MinorVersion == 5) {
-        deviceName = std::string("device@3.5/external/") + deviceId;
+        deviceName = std::string("device@3.5/ptp/") + deviceId;
     } else {
-        deviceName = std::string("device@3.4/external/") + deviceId;
+        deviceName = std::string("device@3.4/ptp/") + deviceId;
     }
     
     if (mCameraStatusMap.erase(deviceName) != 0) {
@@ -270,6 +271,7 @@ void PTPCameraProvider::deviceRemoved(int bus, int dev) {
 
 int PTPCameraProvider::hotplugCallback(libusb_context *ctx, libusb_device *device,
                            libusb_hotplug_event event, void *user_data) {
+    (void*)ctx;
     PTPCameraProvider *self = (PTPCameraProvider *)user_data;
     struct libusb_device_descriptor desc;
     int rc = libusb_get_device_descriptor(device, &desc);

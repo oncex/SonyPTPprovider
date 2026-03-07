@@ -159,6 +159,9 @@ cc_library_shared {
         "camera.device@3.4-ptp-impl_headers"
     ],
     export_include_dirs: ["."],
+    export_shared_lib_headers: [
+        "libusb-1.0",
+    ],
 }
 
 cc_defaults {
@@ -181,6 +184,7 @@ cc_defaults {
         "android.hardware.camera.provider@2.7",
         "android.hardware.graphics.mapper@2.0",
         "android.hardware.graphics.mapper@3.0",
+        "android.hardware.camera.provider@2.7-ptp",
         "android.hardware.graphics.mapper@4.0",
         "libbinder",
         "libcamera_metadata",
