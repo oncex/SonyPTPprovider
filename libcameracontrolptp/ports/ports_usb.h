@@ -8,7 +8,7 @@ namespace sony {
 namespace imaging {
 namespace ports {
 
-#define BULK_MAX_PACKET_SIZE (512)
+#define BULK_MAX_PACKET_SIZE (1024)
 
 typedef struct __usb_device_info_t {
   int idVendor;

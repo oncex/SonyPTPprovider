@@ -2,7 +2,6 @@
 #define __PORTS_USB_IMPL_H__
 
 #include "libusb.h"
-
 #include <pthread.h>
 #include <socc_types.h>
 

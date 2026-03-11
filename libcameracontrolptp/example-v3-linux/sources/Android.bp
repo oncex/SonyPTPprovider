@@ -1,0 +1,26 @@
+cc_defaults {
+    name: "camera_ptp_demo_default",
+    defaults: ["hidl_defaults"],
+    proprietary: true,
+    relative_install_path: "hw",
+    srcs: [
+        "command.cpp",
+        "serverclient.cpp",
+        "socket.cpp",
+        "main.cpp"
+        ],
+    compile_multilib: "32",
+    shared_libs: [
+        "libcameracontrolptp",
+        "libusb-1.0",
+    ],
+    header_libs: [
+        "libcameracontrolptp_headers",
+        "libusb-1.0_headers",
+    ],
+}
+
+cc_binary {
+    name: "camera_ptp_demo",
+    defaults: ["camera_ptp_demo_default"],
+}
