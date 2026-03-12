@@ -133,6 +133,7 @@ cc_library_shared {
         "PTPCameraDevice.cpp",
         "PTPCameraDeviceSession.cpp",
         "PTPCameraUtils.cpp",
+        "command.cpp",
     ],
     shared_libs: [
         "libhidlbase",

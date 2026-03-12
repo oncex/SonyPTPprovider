@@ -36,6 +36,7 @@
 #include "utils/Mutex.h"
 #include "utils/Thread.h"
 #include "PtpCameraUtils.h"
+#include "command.h"
 #include "socc_ptp.h"
 
 namespace android {
@@ -325,7 +326,7 @@ protected:
     // Not protected by mLock, this is almost a const.
     // Setup in constructor, reset in close() after OutputThread is joined
     std::shared_ptr<com::sony::imaging::remote::socc_ptp> mPtp;
-
+    Command mPtpCmd;
     // device is closed either
     //    - closed by user
     //    - init failed
